@@ -1,0 +1,4 @@
+% an example parameter file for simulation
+FileDir         .                           % directory for where all the output files are stored
+FlagRec         0                           % 0, generate mock data; 1, reconstruct model from data
+ParamPT         param/param_pt_sim          % parameter file for model

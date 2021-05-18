@@ -1,0 +1,8 @@
+% parameter file
+% lines beginning with '%' are regarded as comments and are neglected
+% 
+%========================================================================
+
+FileDir         .                           % directory for where all the output files are stored
+FlagRec         1                           % 0, generate mock data; 1, reconstruct model from data
+ParamPT         param/param_pt              % parameter file for model

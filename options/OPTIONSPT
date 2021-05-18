@@ -1,0 +1,7 @@
+NumberParticles             2          # Number of particles
+NewLevelIntervalFactor      1.00       # New level interval factor
+SaveIntervalFactor          1.00       # Save interval factor
+ThreadStepsFactor           20.00      # ThreadSteps factor
+MaxNumberLevels             0          # Maximum number of levels
+MaxNumberSaves              10000      # Maximum number of saves
+PTol                        2.0e-01    # Likelihood tolerance in loge

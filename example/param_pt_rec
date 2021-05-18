@@ -1,0 +1,9 @@
+FlagMethod                  0                           % 0, FP method; 1, MP method; 2, AP method
+FlagEvolve                  0                           % 0， evolving orbit; 1, non-evolving orbit
+PulsarCatalog               data/pulsar_catalog.txt     % file for pulsar catalog
+PTRFile                     data/sim_ptr.txt            % file for pulsar timing residuals
+PTRConstructFileOut         data/pptr.txt               % output filename for ptr reconstruction
+SourceNumber                1                           % Number of GW source for FP method
+
+SourceParFix                00000000
+SourceParFixVal             0.0:0.0

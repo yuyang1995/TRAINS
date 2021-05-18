@@ -1,0 +1,6 @@
+FlagEvolve                  0                           % 0， evolving orbit; 1, non-evolving orbit
+PulsarCatalog               data/pulsar_catalog.txt     % file for pulsar catalog
+SourceNumber                100                         % Number of GW source in simulation
+TimingNumber                130                         % Number of points in timing residuals of a pulsar in simulation
+SourceParFix                00000000
+SourceParFixVal             0.0：0.0
