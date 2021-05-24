@@ -14,32 +14,53 @@
 #include "trains.h"
 
 void *model;
+double *rho;
 
 void sim()
 {
   char fname[1024];
-  int i, j, np;
+  int i, j, k, np;
+  double sigma;
 
   sim_init();
 
   double *pm = (double *)model;
   // read_formated_data("data/sim_source.txt", parset_pt.Ns, sizeof(GWsource) / sizeof(double), '#', 1, "%lf", pm);
-  
-  residual_cal(pm, psr_data, psr_time, psr_res, psr_phase, NULL, -1);
-
-  for (i = 0; i < parset_pt.Np; i++)
-    for (j = 0; j < parset_pt.Nt; j++)
-      psr_res[i][j] += gsl_ran_ugaussian(gsl_r) * psr_data[i].sd;
-
   np = sizeof(GWsource) / sizeof(double);
   sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_source.txt");
   write_formated_data(fname, parset_pt.Ns, np, '#', NULL, 1, "%lf", pm);
 
-  sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_ptr.txt");
-  write_formated_data(fname, parset_pt.Np * parset_pt.Nt, 2, '#', NULL, 2, "%e", parset_pt.Nt, psr_time, psr_res);
-
+  residual_cal(pm, psr_data, psr_time, psr_res_src, psr_phase, NULL, -1, -1);
   sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_phase.txt");
   write_formated_data(fname, parset_pt.Ns, parset_pt.Np, '#', NULL, 1, "%lf", psr_phase);
+
+  for (i = 0; i < parset_pt.Ns; i++)
+  {
+    residual_shift(psr_res_src + i * parset_pt.Np, -1);
+    rho[i] = 0;
+    for (j = 0; j < parset_pt.Np; j++)
+    {
+      sigma = psr_data[j].sd;
+      for (k = 0; k < parset_pt.Nt; k++)
+        rho[i] += pow(psr_res_src[i * parset_pt.Np + j][k] / sigma, 2);
+    }
+    rho[i] = sqrt(rho[i]);
+  }
+  sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_snr.txt");
+  write_formated_data(fname, parset_pt.Ns, 1, '#', NULL, 0, "%e", rho);
+
+  if (parset_pt.Ns > 1)
+  {
+    residual_sum(psr_res_src, psr_res, -1);
+  }
+  sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_signal.txt");
+  write_formated_data(fname, parset_pt.Np * parset_pt.Nt, 2, '#', NULL, 2, "%e", parset_pt.Nt, psr_time, psr_res);
+
+  for (i = 0; i < parset_pt.Np; i++)
+    for (j = 0; j < parset_pt.Nt; j++)
+      psr_res[i][j] += gsl_ran_ugaussian(gsl_r) * psr_data[i].sd;
+  sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_ptr.txt");
+  write_formated_data(fname, parset_pt.Np * parset_pt.Nt, 2, '#', NULL, 2, "%e", parset_pt.Nt, psr_time, psr_res);
 
   sim_end();
   return;
@@ -63,6 +84,20 @@ void sim_init()
     for (j = 0; j < parset_pt.Nt; j++)
     {
       psr_time[i][j] = 0 + j * 14 / 365.25;
+    }
+  }
+
+  rho = malloc(parset_pt.Ns * sizeof(double));
+  if (parset_pt.Ns == 1)
+  {
+    psr_res_src = psr_res;
+  }
+  else
+  {
+    psr_res_src = malloc(parset_pt.Ns * parset_pt.Np * sizeof(double *));
+    for (i = 0; i < parset_pt.Ns * parset_pt.Np; i++)
+    {
+      psr_res_src[i] = malloc(parset_pt.Nt * sizeof(double));
     }
   }
 
@@ -90,6 +125,17 @@ void sim_end()
   }
   free(psr_time);
   free(psr_res);
+
+  if (parset_pt.Ns > 1)
+  {
+    for (i = 0; i < parset_pt.Ns * parset_pt.Np; i++)
+    {
+      free(psr_res_src[i]);
+    }
+    free(psr_res_src);
+  }
+  free(rho);
+
   return;
 }
 
@@ -135,6 +181,6 @@ void set_source_value_sim(double *pm)
       pm[jt] = 2 + 6 * gsl_rng_uniform(gsl_r);
     }
   }
-  
+
   return;
 }

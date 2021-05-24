@@ -249,7 +249,9 @@ UPDATE_FLAG get_update_flag(int pos)
     return UPDATE_ALL;
   if (pos >= parpos.source && pos < parpos.source + parnum.source)
     return UPDATE_SOURCE;
-  if (pos >= parpos.phase && pos < num_params)
-    return UPDATE_PULSAR;
+  if (pos >= parpos.phase && pos < parpos.phase + parnum.phase)
+    return UPDATE_PSR_PHASE;
+  if (pos >= parpos.dis && pos < num_params)
+    return UPDATE_PSR_DIS;
   return UPDATE_NONE;
 }

@@ -125,14 +125,31 @@ double perturb_pt(void *model)
   int count = parset_pt.Ns;
   int size = sizeof(GWsource) / sizeof(double);
   int index = offsetof(GWsource, log_omega) / sizeof(double);
-  gsl_sort((double *)model + index, size, count);
+  double *p, *pn;
+
+  int i = 0;
+  p = (double *)model + index;
+  pn = (double *)model + index + size;
+  for (i = 0; i < count - 1; i++)
+  {
+    if (*p > *pn)
+    {
+      gsl_sort((double *)model + index, size, count);
+      which_parameter_update = -1;
+      break;
+    }
+    p = pn;
+    pn += size;
+  }
   return logH;
 }
 
 void accept_action_pt()
 {
-  int jp;
+  int i, j, is = -1, jp = -1;
+  double **old, **new, **tmp;
   UPDATE_FLAG uflag;
+  int np = sizeof(GWsource) / sizeof(double);
 
   if (parset_pt.flag_method == 0)
   {
@@ -146,6 +163,42 @@ void accept_action_pt()
       jp = (which_parameter_update - parpos.phase) % parset_pt.Np;
       prob_pt_particles[which_particle_update][jp] = prob_pt_particles_perturb[which_particle_update][jp];
     }
+
+    if (parset_pt.Ns > 1)
+    {
+      old = psr_res_src_particles[which_particle_update];
+      new = psr_res_src_particles_perturb[which_particle_update];
+      tmp = psr_res_src;
+      if (uflag == UPDATE_ALL)
+      {
+        memcpy(tmp, old, parset_pt.Ns * parset_pt.Np * sizeof(double *));
+        memcpy(old, new, parset_pt.Ns * parset_pt.Np * sizeof(double *));
+        memcpy(new, tmp, parset_pt.Ns * parset_pt.Np * sizeof(double *));
+      }
+      else if (uflag == UPDATE_SOURCE)
+      {
+        is = (which_parameter_update - parpos.source) / np;
+        memcpy(tmp + is * parset_pt.Np, old + is * parset_pt.Np, parset_pt.Np * sizeof(double *));
+        memcpy(old + is * parset_pt.Np, new + is *parset_pt.Np, parset_pt.Np * sizeof(double *));
+        memcpy(new + is *parset_pt.Np, tmp + is * parset_pt.Np, parset_pt.Np * sizeof(double *));
+      }
+      else if (uflag == UPDATE_PSR_PHASE)
+      {
+        is = (which_parameter_update - parpos.phase) / parset_pt.Np;
+        tmp[is * parset_pt.Np + jp] = old[is * parset_pt.Np + jp];
+        old[is * parset_pt.Np + jp] = new[is * parset_pt.Np + jp];
+        new[is * parset_pt.Np + jp] = tmp[is * parset_pt.Np + jp];
+      }
+      else if (uflag == UPDATE_PSR_DIS)
+      {
+        for (i = 0; i < parset_pt.Ns; i++)
+        {
+          tmp[i * parset_pt.Np + jp] = old[i * parset_pt.Np + jp];
+          old[i * parset_pt.Np + jp] = new[i * parset_pt.Np + jp];
+          new[i * parset_pt.Np + jp] = tmp[i * parset_pt.Np + jp];
+        }
+      }
+    }
   }
   return;
 }
@@ -156,9 +209,15 @@ void accept_action_pt()
  */
 void kill_action_pt(int i, int i_copy)
 {
+  int j = 0;
   if (parset_pt.flag_method == 0)
   {
     memcpy(prob_pt_particles[i], prob_pt_particles[i_copy], parset_pt.Np * sizeof(double));
+    if (parset_pt.Ns > 1)
+    {
+      for (j = 0; j < parset_pt.Ns * parset_pt.Np; j++)
+        memcpy(psr_res_src_particles[i][j], psr_res_src_particles[i_copy][j], parset_pt.Nt * sizeof(double));
+    }
   }
   return;
 }

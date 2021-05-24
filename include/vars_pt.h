@@ -11,7 +11,8 @@ extern PARSET_PT parset_pt;
 /* data */
 extern PSRmodel *psr_data;
 extern double **psr_time_data, **psr_res_data;
-extern double *psr_phase, **psr_time, **psr_res;
+extern double *psr_phase, **psr_time, **psr_res, **psr_res_src;
 extern double *prob_pt_array, **prob_pt_particles, **prob_pt_particles_perturb;
+extern double ***psr_res_src_particles, ***psr_res_src_particles_perturb;
 
 #endif

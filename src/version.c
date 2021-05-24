@@ -3,7 +3,7 @@
 /* version number */
 #define TRAINS_MAJOR_VERSION 0
 #define TRAINS_MINOR_VERSION 1
-#define TRAINS_PATCH_VERSION 0
+#define TRAINS_PATCH_VERSION 1
 
 /*
  * print on screen

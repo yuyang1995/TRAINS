@@ -27,7 +27,9 @@ UPDATE_FLAG get_update_flag(int pos);
 void set_source_range_model(double **range);
 
 void get_omega(const double *psource);
-void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double *phase, double *dis, int jp);
+void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double *phase, double *dis, int is, int jp);
+void residual_sum(double **res_src, double **res, int jp);
+void residual_shift(double **res, int jp);
 double LLR_Mx_Av(const void *pm, PSRmodel *p, double **t, double **res_data, double *phase);
 void LLR_initial(int Nt);
 void LLR_end();

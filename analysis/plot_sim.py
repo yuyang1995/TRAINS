@@ -7,7 +7,7 @@ if __name__ == "__main__":
     sources = np.loadtxt("../data/sim_source.txt", usecols=[0, 1])
     snr = np.loadtxt("../data/sim_snr.txt")
     t, res = np.loadtxt("../data/sim_ptr.txt", unpack=True)
-    signal = np.loadtxt("../data/sim_signal.txt", unpack=True)
+    signal = np.loadtxt("../data/sim_signal.txt", unpack=True, usecols=1)
 
     Np = pulsars.shape[0]
     Nt = len(t) // Np

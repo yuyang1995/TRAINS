@@ -16,25 +16,20 @@
  *  (1) jp < 0: calculating residuals for all pulsars
  *  (2) jp >= 0: calculating residuals for pulsar jp
  */
-void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double *phase, double *dis, int jp)
+void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double *phase, double *dis, int is, int jp)
 {
   GWsource *s = (GWsource *)pm;
-  int i = 0, j = 0, k = 0;
+  int i = 0, j = 0, k = 0, ij = 0;
   double alphaS, sin_deltaS, cos_inc, psi, phi0, zeta, omega, tm;
   double cos_deltaS, sin_deltaP, cos_deltaP, alphatilde, cos_theta, dI, tau;
-  double a[4], Pp, Pc, Fp, Fc, phiI, sC, sS, omegap, omegat, tmp, res_mean;
+  double a[4], Pp, Pc, Fp, Fc, phiI, sC, sS, omegap, omegat, tmp;
   double DeltaC, DeltaS;
-
-  for (j = 0; j < parset_pt.Np; j++)
-  {
-    if (jp >= 0 && j != jp)
-      continue;
-    for (k = 0; k < parset_pt.Nt; k++)
-      res[j][k] = 0;
-  }
 
   for (i = 0; i < parset_pt.Ns; i++)
   {
+    if (is >= 0 && i != is)
+      continue;
+
     // coefficient for each source
     alphaS = s[i].alpha;
     sin_deltaS = s[i].sin_delta;
@@ -56,6 +51,7 @@ void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double 
     {
       if (jp >= 0 && j != jp)
         continue;
+      ij = i * parset_pt.Np + j;
 
       // antenna pattern functions
       alphatilde = alphaS - p[j].alpha;
@@ -73,7 +69,7 @@ void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double 
 
       if (parset.flag_rec)
       {
-        phiI = phase[i * parset_pt.Np + j];
+        phiI = phase[ij];
         if (parset_pt.flag_evolve)
         {
           dI = dis[j];
@@ -89,7 +85,7 @@ void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double 
         else
           phiI = phi0 - 0.5 * omega * tau;
         phiI = fmod(phiI, M_PI);
-        phase[i * parset_pt.Np + j] = phiI;
+        phase[ij] = phiI;
       }
 
       if (parset_pt.flag_evolve)
@@ -102,7 +98,7 @@ void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double 
           if (t[j][k] > tm)
             break;
           omegat = 2 * phi0 + 1.6 * omega * tm * (1 - pow((1 - t[j][k] / tm), 0.625));
-          res[j][k] += (sC * cos(omegat) + sS * sin(omegat)) * pow((1 - t[j][k] / tm), 0.125);
+          res[ij][k] = (sC * cos(omegat) + sS * sin(omegat)) * pow((1 - t[j][k] / tm), 0.125);
         }
 
         // pulsar term
@@ -115,7 +111,7 @@ void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double 
           if (t[j][k] > tmp)
             break;
           omegat = 2 * phiI + 1.6 * omegap * tmp * (1 - pow((1 - t[j][k] / tmp), 0.625));
-          res[j][k] -= (sC * cos(omegat) + sS * sin(omegat)) * pow((1 - t[j][k] / tmp), 0.125);
+          res[ij][k] -= (sC * cos(omegat) + sS * sin(omegat)) * pow((1 - t[j][k] / tmp), 0.125);
         }
       }
       else
@@ -128,17 +124,53 @@ void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double 
         for (k = 0; k < parset_pt.Nt; k++)
         {
           omegat = omega * t[j][k];
-          res[j][k] += sC * cos(omegat) + sS * sin(omegat);
+          res[ij][k] = sC * cos(omegat) + sS * sin(omegat);
         }
       }
-
-      res_mean = 0;
-      for (k = 0; k < parset_pt.Nt; k++)
-        res_mean += res[j][k];
-      res_mean /= parset_pt.Nt;
-      for (k = 0; k < parset_pt.Nt; k++)
-        res[j][k] -= res_mean;
     }
   }
   return;
+}
+
+void residual_sum(double **res_src, double **res, int jp)
+{
+  int i, j, k, ij;
+
+  for (j = 0; j < parset_pt.Np; j++)
+  {
+    if (jp >= 0 && j != jp)
+      continue;
+    for (k = 0; k < parset_pt.Nt; k++)
+      res[j][k] = 0;
+  }
+
+  for (i = 0; i < parset_pt.Ns; i++)
+  {
+    for (j = 0; j < parset_pt.Np; j++)
+    {
+      if (jp >= 0 && j != jp)
+        continue;
+      ij = i * parset_pt.Np + j;
+      for (k = 0; k < parset_pt.Nt; k++)
+        res[j][k] += res_src[ij][k];
+    }
+  }
+  return;
+}
+
+void residual_shift(double **res, int jp)
+{
+  int j, k;
+  double mean;
+  for (j = 0; j < parset_pt.Np; j++)
+  {
+    if (jp >= 0 && j != jp)
+      continue;
+    mean = 0;
+    for (k = 0; k < parset_pt.Nt; k++)
+      mean += res[j][k];
+    mean /= parset_pt.Nt;
+    for (k = 0; k < parset_pt.Nt; k++)
+      res[j][k] -= mean;
+  }
 }
