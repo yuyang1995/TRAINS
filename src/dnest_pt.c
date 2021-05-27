@@ -121,6 +121,8 @@ double perturb_pt(void *model)
     which = dnest_rand_int(num_params);
   } while (par_fix[which] == 1);
   double logH = perturb_gen(model, which);
+  if (parset_pt.flag_prior)
+    return logH;
 
   int count = parset_pt.Ns;
   int size = sizeof(GWsource) / sizeof(double);

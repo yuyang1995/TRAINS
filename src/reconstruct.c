@@ -34,7 +34,7 @@ void sample_stats(double *sample, double *mean, double *std, int num_ps)
     else
       std[j] = 0.0;
   }
-  for (j = 0; j < num_params; j++)
+  for (j = 0; j < parnum.source; j++)
     printf("Best params %d %f +- %f\n", j, mean[j], std[j]);
   return;
 }
@@ -150,6 +150,7 @@ void reconstruct_gen()
     if (thistask == roottask)
     {
       output_pre_pt(best_model);
+      output_source_range_model((double *)best_model, (double *)best_model_std);
     }
   }
 

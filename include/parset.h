@@ -33,6 +33,7 @@ typedef struct
   char ptr_recon_file[TRAINS_MAX_STR_LENGTH];
   int flag_method;
   int flag_evolve;
+  int flag_prior;
   int Ns, Np, Nt;
   char str_par_fix[TRAINS_MAX_STR_LENGTH];
   char str_par_fix_val[TRAINS_MAX_STR_LENGTH];

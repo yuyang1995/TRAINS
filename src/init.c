@@ -142,6 +142,14 @@ void set_par_range_model()
   {
     set_source_range_model(par_range_model + parpos.source + i * np);
   }
+  if (parset_pt.flag_prior && parset_pt.Ns > 1)
+  {
+    if (thistask == roottask)
+      input_source_range_model(par_range_model + parpos.source, parnum.source - np);
+    for (i = parpos.source; i < parpos.source + parnum.source - np; i++)
+      MPI_Bcast(par_range_model[i], 2, MPI_DOUBLE, roottask, MPI_COMM_WORLD);
+  }
+
   for (i = 0; i < parnum.phase; i++)
   {
     par_range_model[parpos.phase + i][0] = 0;

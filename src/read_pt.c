@@ -56,9 +56,16 @@ void read_parset_pt()
       strcpy(parset_pt.ptr_file, find_config_param("PTRFile"));
       strcpy(parset_pt.ptr_recon_file, find_config_param("PTRConstructFileOut"));
       if (parset_pt.flag_method == 0)
+      {
         parset_pt.Ns = atoi(find_config_param("SourceNumber"));
+        parset_pt.flag_prior = atoi(find_config_param("FlagPrior"));
+        check_param_range("FlagPrior", parset_pt.flag_prior, 0, 1);
+      }
       else
+      {
         parset_pt.Ns = 1;
+        parset_pt.flag_prior = 0;
+      }
       sprintf(fname, "%s/%s", parset.file_dir, parset_pt.ptr_file);
       parset_pt.Nt = countLines(fname, '#') / parset_pt.Np;
     }

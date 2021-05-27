@@ -10,6 +10,7 @@ FlagMethod                  0                           % 0, search GW source by
                                                         % 1, search GW source by MxPhase method
                                                         % 2, search GW source by AvPhase method
 FlagEvolve                  0                           % 0, non-evolving orbit; 1, evolving orbit
+FlagPrior                   0                           % 1, using posterior obtained previously as prior
 %========================================================================
 % data file
 %
