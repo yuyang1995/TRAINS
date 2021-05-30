@@ -27,6 +27,7 @@ UPDATE_FLAG get_update_flag(int pos);
 void set_source_range_model(double **range);
 void output_source_range_model(double *mean, double *std);
 void input_source_range_model(double **range, int size);
+double log_prior_compress_rate();
 
 void get_omega(const double *psource);
 void residual_cal(const void *pm, PSRmodel *p, double **t, double **res, double *phase, double *dis, int is, int jp);

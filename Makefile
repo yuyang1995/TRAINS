@@ -2,8 +2,8 @@ SHELL=/bin/bash
 
 #CC       = mpiicc -mkl
 CC       = mpicc
-OPTIMIZE = -O2 -Wall -finline-functions -fcommon
-# OPTIMIZE = -O0 -g
+# OPTIMIZE = -O2 -Wall -finline-functions -fcommon
+OPTIMIZE = -O2 -g
 # OPTIMIZE += -DDebug
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))

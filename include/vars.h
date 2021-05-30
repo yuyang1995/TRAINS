@@ -50,6 +50,8 @@ extern int *par_prior_model;
 extern double **par_prior_gaussian;
 extern int *par_fix, npar_fix;
 extern double *par_fix_val;
+extern int num_params_source;
+extern double **source_range_model;
 
 /* Units */
 extern double TimingUnit;

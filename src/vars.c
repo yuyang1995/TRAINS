@@ -25,6 +25,8 @@ int *par_prior_model;
 double **par_prior_gaussian;
 int *par_fix, npar_fix;
 double *par_fix_val;
+int num_params_source;
+double **source_range_model;
 
 /* Units */
 double TimingUnit;

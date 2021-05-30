@@ -56,7 +56,8 @@ void init_num_params()
 {
   int i, s, *ptr_pos, *ptr_num;
 
-  parnum.source = parset_pt.Ns * sizeof(GWsource) / sizeof(double);
+  num_params_source = sizeof(GWsource) / sizeof(double);
+  parnum.source = parset_pt.Ns * num_params_source;
   if (parset.flag_rec && parset_pt.flag_method == 0)
   {
     parnum.phase = parset_pt.Ns * parset_pt.Np;
@@ -108,6 +109,10 @@ void allocate_memory()
     par_range_model[i] = malloc(2 * sizeof(double));
     par_prior_gaussian[i] = malloc(2 * sizeof(double));
   }
+
+  source_range_model = malloc(num_params_source * sizeof(double *));
+  for (i = 0; i < num_params; i++)
+    source_range_model[i] = malloc(2 * sizeof(double));
   return;
 }
 
@@ -127,6 +132,9 @@ void free_memory()
   }
   free(par_range_model);
   free(par_prior_gaussian);
+  for (i = 0; i < num_params_source; i++)
+    free(source_range_model[i]);
+  free(source_range_model);
   gsl_rng_free(gsl_r);
   return;
 }
@@ -136,17 +144,27 @@ void free_memory()
  */
 void set_par_range_model()
 {
-  int i = 0, np;
-  np = sizeof(GWsource) / sizeof(double);
+  int i = 0, j = 0, k = 0;
+  double logR;
+  set_source_range_model(source_range_model);
   for (i = 0; i < parset_pt.Ns; i++)
   {
-    set_source_range_model(par_range_model + parpos.source + i * np);
+    for (j = 0; j < num_params_source; j++)
+    {
+      k = parpos.source + i * num_params_source + j;
+      par_range_model[k][0] = source_range_model[j][0];
+      par_range_model[k][1] = source_range_model[j][1];
+    }
   }
   if (parset_pt.flag_prior && parset_pt.Ns > 1)
   {
     if (thistask == roottask)
-      input_source_range_model(par_range_model + parpos.source, parnum.source - np);
-    for (i = parpos.source; i < parpos.source + parnum.source - np; i++)
+    {
+      input_source_range_model(par_range_model + parpos.source, parnum.source - num_params_source);
+      logR = log_prior_compress_rate();
+      printf("Compress rate of the prior's volume log(R) = %lf", logR);
+    }
+    for (i = parpos.source; i < parpos.source + parnum.source - num_params_source; i++)
       MPI_Bcast(par_range_model[i], 2, MPI_DOUBLE, roottask, MPI_COMM_WORLD);
   }
 
@@ -169,7 +187,7 @@ void set_par_range_model()
 void set_par_fix_model()
 {
   int i = 0;
-  int np, idx_tm, jt;
+  int idx_tm, jt;
 
   for (i = 0; i < num_params; i++)
   {
@@ -182,11 +200,10 @@ void set_par_fix_model()
 
   if (!parset_pt.flag_evolve)
   {
-    np = sizeof(GWsource) / sizeof(double);
     idx_tm = offsetof(GWsource, log_tm) / sizeof(double);
     for (i = 0; i < parset_pt.Ns; i++)
     {
-      jt = parpos.source + i * np + idx_tm;
+      jt = parpos.source + i * num_params_source + idx_tm;
       par_fix[jt] = 1;
       par_fix_val[jt] = log10(1e8);
     }

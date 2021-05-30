@@ -19,16 +19,15 @@ double *rho;
 void sim()
 {
   char fname[1024];
-  int i, j, k, np;
+  int i, j, k;
   double sigma;
 
   sim_init();
 
   double *pm = (double *)model;
   // read_formated_data("data/sim_source.txt", parset_pt.Ns, sizeof(GWsource) / sizeof(double), '#', 1, "%lf", pm);
-  np = sizeof(GWsource) / sizeof(double);
   sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_source.txt");
-  write_formated_data(fname, parset_pt.Ns, np, '#', NULL, 1, "%lf", pm);
+  write_formated_data(fname, parset_pt.Ns, num_params_source, '#', NULL, 1, "%lf", pm);
 
   residual_cal(pm, psr_data, psr_time, psr_res_src, psr_phase, NULL, -1, -1);
   sprintf(fname, "%s/%s", parset.file_dir, "/data/sim_phase.txt");
@@ -145,7 +144,6 @@ void sim_end()
 void set_source_value_sim(double *pm)
 {
   int i, jz, jo, jt;
-  int np = sizeof(GWsource) / sizeof(double);
   int idx_zeta = offsetof(GWsource, log_zeta) / sizeof(double);
   int idx_omega = offsetof(GWsource, log_omega) / sizeof(double);
   int idx_tm = offsetof(GWsource, log_tm) / sizeof(double);
@@ -158,9 +156,9 @@ void set_source_value_sim(double *pm)
 
   for (i = 0; i < parset_pt.Ns; i++)
   {
-    jz = parpos.source + i * np + idx_zeta;
-    jo = parpos.source + i * np + idx_omega;
-    jt = parpos.source + i * np + idx_tm;
+    jz = parpos.source + i * num_params_source + idx_zeta;
+    jo = parpos.source + i * num_params_source + idx_omega;
+    jt = parpos.source + i * num_params_source + idx_tm;
     if (parset_pt.flag_evolve == 0)
     {
       // from log_omega to fgw

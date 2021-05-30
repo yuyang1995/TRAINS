@@ -252,7 +252,6 @@ double prob_pt(const void *model)
   double prob = 0.0, var2, dy;
   int i, j, is = -1, jp = -1, ij;
   UPDATE_FLAG uflag;
-  int np = sizeof(GWsource) / sizeof(double);
 
   if (parset_pt.flag_method == 0)
   {
@@ -265,7 +264,7 @@ double prob_pt(const void *model)
     if (parset_pt.Ns > 1)
     {
       if (uflag == UPDATE_SOURCE)
-        is = (which_parameter_update - parpos.source) / np;
+        is = (which_parameter_update - parpos.source) / num_params_source;
       else if (uflag == UPDATE_PSR_PHASE)
         is = (which_parameter_update - parpos.phase) / parset_pt.Np;
 

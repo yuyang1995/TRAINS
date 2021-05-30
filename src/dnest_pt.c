@@ -151,7 +151,6 @@ void accept_action_pt()
   int i, j, is = -1, jp = -1;
   double **old, **new, **tmp;
   UPDATE_FLAG uflag;
-  int np = sizeof(GWsource) / sizeof(double);
 
   if (parset_pt.flag_method == 0)
   {
@@ -179,7 +178,7 @@ void accept_action_pt()
       }
       else if (uflag == UPDATE_SOURCE)
       {
-        is = (which_parameter_update - parpos.source) / np;
+        is = (which_parameter_update - parpos.source) / num_params_source;
         memcpy(tmp + is * parset_pt.Np, old + is * parset_pt.Np, parset_pt.Np * sizeof(double *));
         memcpy(old + is * parset_pt.Np, new + is *parset_pt.Np, parset_pt.Np * sizeof(double *));
         memcpy(new + is *parset_pt.Np, tmp + is * parset_pt.Np, parset_pt.Np * sizeof(double *));

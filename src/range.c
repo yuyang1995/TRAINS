@@ -40,7 +40,7 @@ void set_source_range_model(double **range)
 
 void output_source_range_model(double *mean, double *std)
 {
-  int i = 0;
+  int i = 0, j = 0;
   FILE *fp;
   char range_file[TRAINS_MAX_STR_LENGTH];
   double ll, ul;
@@ -48,8 +48,9 @@ void output_source_range_model(double *mean, double *std)
   fp = fopen_safe(range_file, "w");
   for (i = parpos.source; i < parpos.source + parnum.source; i++)
   {
-    ll = par_range_model[i][0];
-    ul = par_range_model[i][1];
+    j = (i - parpos.source) % num_params_source;
+    ll = source_range_model[j][0];
+    ul = source_range_model[j][1];
     if (par_fix[i] == 0)
     {
       if (ll < mean[i] - 5 * std[i])
@@ -79,4 +80,17 @@ void input_source_range_model(double **range, int size)
   }
   free(data_buf);
   return;
+}
+
+double log_prior_compress_rate()
+{
+  int i, j;
+  double r, logR = 0;
+  for (i = parpos.source; i < parpos.source + parnum.source; i++)
+  {
+    j = (i - parpos.source) % num_params_source;
+    r = (par_range_model[i][1] - par_range_model[i][0]) / (source_range_model[j][1] - source_range_model[j][0]);
+    logR += log(r);
+  }
+  return logR;
 }

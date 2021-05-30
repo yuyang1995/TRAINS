@@ -12,21 +12,25 @@ sed -i 's/\(FlagPrior\s*\)[0-9]/\11/' ${FileDir}/${ParamPT}
 # Minimum and Maximum number of GW sources
 MinNs=1
 MaxNs=$2
+# Number of cores used in parallel sampling
+Ncores=20
 for Ns in $(seq ${MinNs} 1 ${MaxNs}); do
     # SourceNumber=Ns
     echo "The number of GW sources: "${Ns}
     echo ""
     sed -i 's/\(SourceNumber\s*\)[0-9]\+/\1'${Ns}'/' ${FileDir}/${ParamPT}
-    # MaxNumberSaves = 5000 * Ns
-    NSaves=$(expr ${Ns} \* 5000)
+    # MaxNumberSaves = 5000
+    NSaves=5000
     sed -i 's/\(MaxNumberSaves\s*\)[0-9]\+/\1'${NSaves}'/' ${FileDir}/options/OPTIONSPT
 
     # do diffusive nested sampling
-    mpirun -np 20 ./trains ${Param} >output_${Ns}.txt
+    mpirun -np $Ncores ./trains ${Param} >output_${Ns}.txt
     # get the size of the posterior sample
     Nps=$(wc -l ${FileDir}/data/posterior_sample_pt.txt | awk '{print $1}')
+    # Done creating levels?
+    Done=$(grep Done output_${Ns}.txt)
 
-    while (($Nps <= 100)); do
+    while [ $Nps -le 100 -o -z "$Done" ]; do
         # prepare the restart file
         cp ${FileDir}/data/restart_pt_dnest.txt_${NSaves} ${FileDir}/data/restart_pt_dnest.txt
         # restore the range file
@@ -38,12 +42,15 @@ for Ns in $(seq ${MinNs} 1 ${MaxNs}); do
         sed -i 's/\(MaxNumberSaves\s*\)[0-9]\+/\1'${NSaves}'/' ${FileDir}/options/OPTIONSPT
 
         # restart the sampling
-        mpirun -np 20 ./trains -r ${Param} >>output_${Ns}.txt
+        mpirun -np $Ncores ./trains -r ${Param} >>output_${Ns}.txt
         # update the size of the posterior sample
         Nps=$(wc -l ${FileDir}/data/posterior_sample_pt.txt | awk '{print $1}')
+        # Done creating levels?
+        Done=$(grep Done output_${Ns}.txt)
     done
 
     # evidence, information and effective sample size
+    grep Compress output_${Ns}.txt | head -1
     grep -A2 Z output_${Ns}.txt | tail -3
     echo ""
     # time used
