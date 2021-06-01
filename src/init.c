@@ -111,7 +111,7 @@ void allocate_memory()
   }
 
   source_range_model = malloc(num_params_source * sizeof(double *));
-  for (i = 0; i < num_params; i++)
+  for (i = 0; i < num_params_source; i++)
     source_range_model[i] = malloc(2 * sizeof(double));
   return;
 }

@@ -73,6 +73,7 @@ void read_parset_pt()
     {
       parset_pt.Ns = atoi(find_config_param("SourceNumber"));
       parset_pt.Nt = atoi(find_config_param("TimingNumber"));
+      parset_pt.flag_prior = 0;
     }
 
     strcpy(parset_pt.str_par_fix, find_config_param("SourceParFix"));
