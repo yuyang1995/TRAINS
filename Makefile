@@ -16,8 +16,8 @@ ifeq ($(SYSTEM), "Linux")
 NCORE      :=$(grep -c ^processor /proc/cpuinfo)
 GSL_INCL    = $(shell pkg-config --cflags gsl) 
 GSL_LIBS    = $(shell pkg-config --libs gsl) 
-DNEST_INCL  = -I /home/yuyang/Desktop/Projects/CDNest/
-DNEST_LIBS  = -L /home/yuyang/Desktop/Projects/CDNest -ldnest
+DNEST_INCL  = -I /home/yuyang/soft/CDNest/
+DNEST_LIBS  = -L /home/yuyang/soft/CDNest -ldnest
 MPICHINCL     = $(shell pkg-config --cflags mpich) 
 MPICHLIB    = $(shell pkg-config --libs mpich)
 endif

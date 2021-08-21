@@ -45,8 +45,8 @@ void read_parset_pt()
       parset_pt.flag_evolve = 0;
     }
 
-    strcpy(parset_pt.ps_catolog, find_config_param("PulsarCatalog"));
-    sprintf(fname, "%s/%s", parset.file_dir, parset_pt.ps_catolog);
+    strcpy(parset_pt.psr_catalog, find_config_param("PulsarCatalog"));
+    sprintf(fname, "%s/%s", parset.file_dir, parset_pt.psr_catalog);
     parset_pt.Np = countLines(fname, '#');
 
     if (parset.flag_rec)
@@ -97,7 +97,7 @@ void read_data_pt()
   alloc_data_pt();
   if (thistask == roottask)
   {
-    sprintf(fname, "%s/%s", parset.file_dir, parset_pt.ps_catolog);
+    sprintf(fname, "%s/%s", parset.file_dir, parset_pt.psr_catalog);
     read_formated_data(fname, parset_pt.Np, sizeof(PSRmodel) / sizeof(double), '#', 1, "%lf", psr_data);
     // write_formated_data("test.txt", parset_pt.Np, 4, '#', "test", 1, "%lf", psr_data);
     if (parset.flag_rec)

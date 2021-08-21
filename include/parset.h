@@ -28,7 +28,7 @@ typedef struct
 
 typedef struct
 {
-  char ps_catolog[TRAINS_MAX_STR_LENGTH];
+  char psr_catalog[TRAINS_MAX_STR_LENGTH];
   char ptr_file[TRAINS_MAX_STR_LENGTH];
   char ptr_recon_file[TRAINS_MAX_STR_LENGTH];
   int flag_method;

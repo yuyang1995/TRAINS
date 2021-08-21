@@ -6,7 +6,7 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
                 "/usr/include/x86_64-linux-gnu/mpich",
-                "/home/yuyang/Desktop/Projects/CDNest"
+                "/home/yuyang/soft/CDNest"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

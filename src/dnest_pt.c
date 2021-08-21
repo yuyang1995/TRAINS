@@ -73,6 +73,8 @@ int dnest_pt(int argc, char **argv)
 void from_prior_pt(void *model)
 {
   from_prior_gen(model);
+  if (parset_pt.flag_prior)
+    return;
   int count = parset_pt.Ns;
   int size = sizeof(GWsource) / sizeof(double);
   int index = offsetof(GWsource, log_omega) / sizeof(double);
